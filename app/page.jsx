@@ -14,7 +14,7 @@ export default function PublicMenu() {
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const scrollRef = useRef(null);
-  
+
   // Ref to track if we are currently scrolling via a click
   // This prevents the observer from switching tabs while the page is still animating to the target
   const isClickScrolling = useRef(false);
@@ -25,7 +25,7 @@ export default function PublicMenu() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/menu");
+        const res = await fetch("/api/menu?public=true"); // Force public filtering
         if (!res.ok) throw new Error("API Failed");
         const data = await res.json();
 
@@ -58,11 +58,12 @@ export default function PublicMenu() {
     if (element) {
       // 1. Get the element's position relative to the viewport
       const rect = element.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+
       // 2. Define the height of your sticky header (Header + Nav)
       // Adjust this value (230) if your header is taller/shorter
-      const headerOffset = 230; 
+      const headerOffset = 230;
 
       // 3. Calculate absolute position minus the offset
       const finalPosition = rect.top + scrollTop - headerOffset;
@@ -85,7 +86,9 @@ export default function PublicMenu() {
 
     // improved logic for fractional pixels
     setCanScrollLeft(el.scrollLeft > 1);
-    setCanScrollRight(Math.ceil(el.scrollLeft + el.clientWidth) < el.scrollWidth - 1);
+    setCanScrollRight(
+      Math.ceil(el.scrollLeft + el.clientWidth) < el.scrollWidth - 1
+    );
   };
 
   const scrollByAmount = (amount) => {
@@ -171,7 +174,6 @@ export default function PublicMenu() {
         {/* ---------------- Category Nav ---------------- */}
         <div className="relative w-full bg-[#FFFCF5] border-b-4 border-double border-amber-200 shadow-sm">
           <div className="max-w-4xl mx-auto flex items-center px-2 py-2">
-            
             {/* Left Arrow */}
             <button
               onClick={() => scrollByAmount(-200)}
@@ -213,7 +215,11 @@ export default function PublicMenu() {
                             : "bg-white border-amber-200 text-amber-800 hover:bg-amber-50 hover:border-amber-400"
                         }
                       `}
-                      style={{ fontFamily: isEmpty ? 'inherit' : 'var(--font-serif-royal)' }}>
+                      style={{
+                        fontFamily: isEmpty
+                          ? "inherit"
+                          : "var(--font-serif-royal)",
+                      }}>
                       {cat.name}
                     </button>
                   );
@@ -258,7 +264,7 @@ export default function PublicMenu() {
                   <path
                     d="M0 5 C 20 0, 40 10, 60 5 S 100 0, 140 5 S 180 10, 200 5"
                     fill="none"
-                    stroke="#d97706" 
+                    stroke="#d97706"
                     strokeWidth="2"
                     strokeLinecap="round"
                   />
