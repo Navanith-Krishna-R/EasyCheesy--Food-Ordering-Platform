@@ -40,16 +40,11 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    const isAuth = localStorage.getItem('isAuthenticated');
-    if (!isAuth) {
-      router.push('/login');
-    } else {
-      fetchAllData();
-    }
-  }, [router, fetchAllData]);
+      fetchAllData().catch(() => router.push('/login'));
+  }, []);
 
-  const onLogout = () => {
-    localStorage.removeItem('isAuthenticated');
+  const onLogout = async () => {
+    await fetch('/api/logout', { method: 'POST' });
     router.push('/login');
   };
 
