@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Lilita_One, Baloo_Tamma_2 } from 'next/font/google';
+import { Anek_Kannada } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+
+const lalita = Lilita_One({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-lalita', // CSS variable name
 });
 
 const geistMono = Geist_Mono({
