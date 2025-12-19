@@ -4,7 +4,7 @@ import MenuItem from '@/models/MenuItem';
 import Category from '@/models/Category';
 import { getSession } from '@/lib/auth';
 
-export async function GET(request) { // Add 'request' parameter
+export async function GET(request) {
   await dbConnect();
   try {
     // 1. Check for Query Params
@@ -33,7 +33,6 @@ export async function GET(request) { // Add 'request' parameter
   }
 }
 
-// POST remains the same...
 export async function POST(request) {
   await dbConnect();
   try {

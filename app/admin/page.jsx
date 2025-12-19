@@ -17,15 +17,15 @@ import {
   Image as ImageIcon,
   AlertCircle,
   CheckCircle2,
+  CameraIcon,
+  Link,
 } from "lucide-react";
-
-// --- SUB-COMPONENTS (Separation of Concerns) ---
 
 // 1. Toast Notification (Replaces window.alert)
 const Toast = ({ message, type = "error", onClose }) => {
   if (!message) return null;
   return (
-    <div className="fixed bottom-4 right-4 z-[150] animate-in slide-in-from-bottom-5 fade-in duration-300">
+    <div className="fixed bottom-4 right-4 z-150 animate-in slide-in-from-bottom-5 fade-in duration-300">
       <div
         className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${
           type === "error"
@@ -57,7 +57,7 @@ const ConfirmModal = ({
 }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[120] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-120 flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 animate-in zoom-in-95 duration-200">
         <div className="flex flex-col items-center text-center gap-3">
           <div className="h-12 w-12 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mb-1">
@@ -131,15 +131,15 @@ const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
           {item.description}
         </p>
         {/* Price shows here on Mobile, moves to Col 3 on Desktop */}
-        <span className="md:hidden text-xs font-mono font-bold text-orange-600 mt-1 block">
-          {parseFloat(item.price).toFixed(2)}
+        <span className="md:hidden text-sm font-mono font-bold text-orange-600 mt-1 block">
+          ₹{parseFloat(item.price)}
         </span>
       </div>
 
       {/* Col 3: Price (Desktop Only) */}
       <div className="hidden md:block">
-        <span className="text-sm font-mono font-medium text-gray-700">
-          {parseFloat(item.price).toFixed(2)}
+        <span className="text-sm font-mono font-medium text-orange-600">
+          ₹{parseFloat(item.price)}
         </span>
       </div>
 
@@ -224,7 +224,7 @@ const EditorModal = ({
 }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-end md:items-center justify-center p-0 md:p-4">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-100 flex items-end md:items-center justify-center p-0 md:p-4">
       <div className="bg-white w-full md:w-[450px] md:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in slide-in-from-bottom-10 md:slide-in-from-bottom-4 duration-200">
         <div className="p-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white md:rounded-t-2xl z-10">
           <h3 className="font-bold text-gray-800">{title}</h3>
@@ -283,7 +283,6 @@ export default function AdminDashboard() {
   });
   const [catFormData, setCatFormData] = useState({ name: "" });
 
-  // 1. Fetch & Sort
   const fetchAllData = useCallback(async () => {
     try {
       const res = await fetch("/api/menu");
@@ -312,7 +311,6 @@ export default function AdminDashboard() {
     fetchAllData();
   }, [fetchAllData]);
 
-  // 2. Logic Helpers
   const handleToggle = async (type, item) => {
     const isItem = type === "item";
     const id = item._id || item.id;
@@ -343,9 +341,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // --- NEW DELETE LOGIC (UI Based) ---
-
-  // A. Trigger the Modal
   const requestDelete = (item) => {
     setDeleteState({
       isOpen: true,
@@ -354,7 +349,6 @@ export default function AdminDashboard() {
     });
   };
 
-  // B. Execute the API Call
   const confirmDelete = async () => {
     const { item } = deleteState;
     if (!item) return;
@@ -548,11 +542,22 @@ export default function AdminDashboard() {
             </h1>
           </div>
 
-          <button
-            onClick={() => openForm()}
-            className="bg-orange-600 text-white p-2 rounded-full shadow-lg shadow-orange-200">
-            <Plus size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                window.open("https://beeimg.com/upload", "_blank");
+              }}
+              className="flex gap-2 rounded-md bg-blue-600 text-white px-2  py-1 shadow-lg shadow-blue-200">
+              <Link size={18} />
+              <span className="text-sm">Link</span>
+            </button>
+
+            <button
+              onClick={() => openForm()}
+              className="bg-orange-600 text-white p-2 rounded-full shadow-lg shadow-orange-200">
+              <Plus size={20} />
+            </button>
+          </div>
         </header>
 
         {/* Desktop Header */}
@@ -563,11 +568,22 @@ export default function AdminDashboard() {
             </h1>
           </div>
 
-          <button
-            onClick={() => openForm()}
-            className="bg-orange-600 text-white p-2 rounded-full shadow-lg shadow-orange-200">
-            <Plus size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                window.open("https://beeimg.com/upload", "_blank");
+              }}
+              className="flex gap-2 rounded-md bg-blue-600 text-white px-2  py-1 shadow-lg shadow-blue-200">
+              <Link size={18} />
+              <span className="text-sm">Link</span>
+            </button>
+
+            <button
+              onClick={() => openForm()}
+              className="bg-orange-600 text-white p-2 rounded-full shadow-lg shadow-orange-200">
+              <Plus size={20} />
+            </button>
+          </div>
         </div>
 
         {/* --- List Content --- */}

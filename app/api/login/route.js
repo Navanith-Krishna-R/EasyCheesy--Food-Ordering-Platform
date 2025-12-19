@@ -6,19 +6,19 @@ export async function POST(request) {
   try {
     const { username, password } = await request.json();
 
-    // Read from environment variables
+    // 1. Read from environment variables
     const validUser = process.env.ADMIN_USERNAME;
     const validPass = process.env.ADMIN_PASSWORD;
 
-    // Safety check: Ensure env vars are actually set
+    // 2. Safety check: Ensure env vars are actually set
     if (!validUser || !validPass) {
-      console.error("❌ ADMIN_USERNAME or ADMIN_PASSWORD not set in .env.local");
+      console.error("❌ ADMIN_USERNAME or ADMIN_PASSWORD not set in environment variables.");
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
     }
 
     if (username === validUser && password === validPass) {
       
-      // Use the actual username in the token, not the password or hardcoded string
+      // 3. Use the actual username in the token, not the password or hardcoded string
       const token = await signToken({ role: 'admin', username: validUser });
 
       const cookieStore = await cookies();

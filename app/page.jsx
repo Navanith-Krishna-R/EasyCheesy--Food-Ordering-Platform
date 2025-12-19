@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Plus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
-import { INITIAL_CATEGORIES, INITIAL_ITEMS } from "./data";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+// import { INITIAL_CATEGORIES, INITIAL_ITEMS } from "./data";
 
 export default function PublicMenu() {
   const [categories, setCategories] = useState([]);
@@ -14,11 +14,7 @@ export default function PublicMenu() {
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const scrollRef = useRef(null);
-
-  // Ref to track if we are currently scrolling via a click
-  // This prevents the observer from switching tabs while the page is still animating to the target
   const isClickScrolling = useRef(false);
-
   const getCatId = (cat) => cat.slug || cat.id;
 
   /* ---------------- Fetch Data ---------------- */
@@ -49,7 +45,6 @@ export default function PublicMenu() {
   const getCategoryItemCount = (catId) =>
     items.filter((i) => i.category === catId).length;
 
-  // --- CHANGED: PROPER SCROLL FUNCTIONALITY ---
   const scrollToCategory = (catId) => {
     setActiveCategory(catId);
     isClickScrolling.current = true; // Lock observer
@@ -62,7 +57,6 @@ export default function PublicMenu() {
         window.pageYOffset || document.documentElement.scrollTop;
 
       // 2. Define the height of your sticky header (Header + Nav)
-      // Adjust this value (230) if your header is taller/shorter
       const headerOffset = 230;
 
       // 3. Calculate absolute position minus the offset
@@ -144,16 +138,16 @@ export default function PublicMenu() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 text-gray-800 pb-20">
+    <div className="min-h-screen bg-amber-50 text-gray-800 flex flex-col">
       {/* ---------------- Header ---------------- */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="relative w-full py-5 flex justify-center items-center overflow-hidden border-b-[3px] border-amber-100 border-double">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-amber-100/60 via-[#FFFCF5] to-[#FFFCF5]"></div>
-          <div className="absolute h-[2px] w-full top-1/2 -translate-y-1/2 bg-gradient-to-r from-transparent via-amber-300 to-transparent opacity-70"></div>
+          <div className="absolute h-0.5 w-full top-1/2 -translate-y-1/2 bg-linear-to-r from-transparent via-amber-300 to-transparent opacity-70"></div>
 
           <div
             className="relative z-10 px-10 py-3 rounded-full 
-                      bg-gradient-to-br from-amber-500 via-amber-600 to-amber-800 
+                      bg-linear-to-br from-amber-500 via-amber-600 to-amber-800 
                       border-[3px] border-t-amber-200 border-l-amber-300 border-b-amber-700 border-r-amber-600
                       shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_0_#78350f,0_8px_20px_-4px_rgba(120,53,15,0.5)] 
                       text-center">
@@ -163,9 +157,7 @@ export default function PublicMenu() {
               style={{ fontFamily: "var(--font-anek-kannada)" }}>
               ಈಜ಼ೀ ಚೀಜ಼ೀ
             </h1>
-            <h2
-              className="text-sm md:text-lg text-amber-200 uppercase font-black tracking-[0.2em] drop-shadow-sm"
-              style={{ fontFamily: "var(--font-lalita), cursive" }}>
+            <h2 className="text-sm md:text-lg text-amber-200 uppercase font-black tracking-[0.2em] drop-shadow-sm">
               Easy Cheesy
             </h2>
           </div>
@@ -211,7 +203,7 @@ export default function PublicMenu() {
                           isEmpty
                             ? "border-transparent text-stone-300 cursor-not-allowed bg-transparent"
                             : activeCategory === id
-                            ? "bg-gradient-to-b from-amber-700 to-amber-900 border-amber-900 text-[#FFFCF5] shadow-md scale-105"
+                            ? "bg-linear-to-b from-amber-700 to-amber-900 border-amber-900 text-[#FFFCF5] shadow-md scale-105"
                             : "bg-white border-amber-200 text-amber-800 hover:bg-amber-50 hover:border-amber-400"
                         }
                       `}
@@ -244,7 +236,7 @@ export default function PublicMenu() {
       </header>
 
       {/* ---------------- Menu Content ---------------- */}
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-12">
+      <main className="max-w-4xl mx-auto px-4 py-6 space-y-12 flex-1">
         {categories.map((cat) => {
           const id = getCatId(cat);
           const catItems = items.filter((i) => i.category === id);
@@ -318,6 +310,22 @@ export default function PublicMenu() {
           );
         })}
       </main>
+
+      {/* ---------------- Contact ---------------- */}
+      <footer className="sticky bottom-0 z-50 bg-white/95 backdrop-blur-md border-t border-gray-200">
+        <div className="relative w-full bg-[#FFFCF5] border-t-4 border-double border-amber-200 shadow-sm">
+          <div className="max-w-4xl mx-auto flex items-center px-2 py-2">
+            <p className="text-sm text-amber-900 italic font-medium  mx-auto">
+              For orders and inquiries, contact us at:{" "}
+              <a
+                href="tel:+917892278183"
+                className="underline font-bold text-amber-800 hover:text-amber-900">
+                +91 78922 78183
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
