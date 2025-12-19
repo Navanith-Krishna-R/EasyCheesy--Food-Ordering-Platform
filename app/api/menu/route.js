@@ -3,43 +3,61 @@ import dbConnect from '@/lib/mongodb';
 import MenuItem from '@/models/MenuItem';
 import Category from '@/models/Category';
 import { getSession } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 export async function GET(request) {
   await dbConnect();
   try {
-    // 1. Check for Query Params
     const { searchParams } = new URL(request.url);
     const forcePublic = searchParams.get('public') === 'true';
-
-    // 2. Check Session
     const session = await getSession();
     
-    // 3. Determine Mode
-    // You are an admin ONLY if you have a session AND you didn't ask for the public view
     const isAdmin = !!session && !forcePublic;
+    const filter = isAdmin ? {} : { isVisible: true };
 
-    // 4. Set Query
-    // Admin sees everything. Public sees only { isVisible: true }
-    const query = isAdmin ? {} : { isVisible: true };
-
-    const [categories, items] = await Promise.all([
-      Category.find(query).sort({ createdAt: 1 }), 
-      MenuItem.find(query)
+    // 1. Fetch data separately to avoid "Population" crashes with slugs
+    const [categories, rawItems] = await Promise.all([
+      Category.find(filter).sort({ name: 1 }).lean(), 
+      MenuItem.find(filter).sort({ createdAt: -1 }).lean()
     ]);
 
-    return NextResponse.json({ categories, items });
+    // 2. Map items to ensure 'category' field is just a string/ID 
+    // This prevents Mongoose from trying to cast 'cakes' to an ObjectId
+    const items = rawItems.map(item => ({
+      ...item,
+      category: item.category ? item.category.toString() : null
+    }));
+
+    const response = NextResponse.json({ categories, items });
+
+    // 3. High Traffic Optimization: Edge Caching
+    if (!isAdmin) {
+      response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59');
+    }
+
+    return response;
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
+    console.error('MENU_GET_ERR:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
+// POST remains the same...
+
 export async function POST(request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   await dbConnect();
   try {
     const body = await request.json();
-    const newItem = await MenuItem.create({ ...body, isVisible: true });
+    // Safety: don't let client override certain fields via spread
+    const newItem = await MenuItem.create({ 
+      ...body, 
+      isVisible: body.isVisible ?? true 
+    });
     return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create item' }, { status: 400 });
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

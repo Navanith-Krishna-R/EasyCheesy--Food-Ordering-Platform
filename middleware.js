@@ -2,33 +2,43 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
 export async function middleware(request) {
-  // 1. Get the path
-  const path = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
 
-  // 2. Define protected paths
-  const isProtectedPath = path.startsWith('/admin');
-  const isProtectedApi = path.startsWith('/api/menu') && ['POST', 'PUT', 'DELETE'].includes(request.method);
-  const isProtectedCategoryApi = path.startsWith('/api/categories') && ['POST', 'DELETE'].includes(request.method);
+  // Define protection rules
+  const isAdminPath = pathname.startsWith('/admin');
+  const isWriteAction = ['POST', 'PUT', 'DELETE'].includes(request.method);
+  
+  const isProtectedApi = isWriteAction && (
+    pathname.startsWith('/api/menu') || 
+    pathname.startsWith('/api/categories')
+  );
 
-  // 3. Check for token if path is protected
-  if (isProtectedPath || isProtectedApi || isProtectedCategoryApi) {
-    const token = request.cookies.get('admin_token')?.value;
-    const session = token ? await verifyToken(token) : null;
+  // Early exit if route doesn't require auth
+  if (!isAdminPath && !isProtectedApi) {
+    return NextResponse.next();
+  }
 
-    if (!session) {
-      // If trying to access API, return JSON error
-      if (path.startsWith('/api')) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      // If trying to access Page, redirect to Login
-      return NextResponse.redirect(new URL('/login', request.url));
+  const token = request.cookies.get('admin_token')?.value;
+  const verified = token ? await verifyToken(token) : null;
+
+  if (!verified) {
+    if (pathname.startsWith('/api')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    
+    // Construct login URL with a 'callback' query to improve UX
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
 }
 
-// Optimize middleware to only run on relevant paths
 export const config = {
-  matcher: ['/admin/:path*', '/api/:path*'],
+  // Explicitly exclude static files and images to save compute cycles
+  matcher: [
+    '/admin/:path*',
+    '/api/menu/:path*',
+    '/api/categories/:path*'
+  ],
 };

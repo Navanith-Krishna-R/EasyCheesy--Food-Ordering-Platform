@@ -1,35 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, ChevronRight } from "lucide-react";
 
 export default function AdminLogin() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const usernameRef = useRef(null); // Ref for auto-focus
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Focus the username field on mount for better UX
+  useEffect(() => {
+    usernameRef.current?.focus();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (error) setError(""); // Clear error when user starts typing again
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/auth/login", { // Updated to match our auth path
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(formData),
       });
 
       if (res.ok) {
+        // refresh() tells Next.js to re-run Server Components (like your Navbar/Sidebar)
+        // push() then moves the user to the dashboard
         router.refresh();
         router.push("/admin");
       } else {
-        setError("Invalid credentials");
+        const data = await res.json();
+        setError(data.error || "Invalid credentials");
       }
     } catch (err) {
-      setError("Something went wrong");
+      setError("Unable to connect to server. Check your internet.");
     } finally {
       setLoading(false);
     }
@@ -43,40 +59,47 @@ export default function AdminLogin() {
             <Lock size={24} />
           </div>
           <h2 className="text-2xl font-semibold text-gray-900">Admin Portal</h2>
-          <p className="text-gray-500 text-sm mt-2">
-            Enter your credentials to access the dashboard
-          </p>
+          <p className="text-gray-500 text-sm mt-2">Enter credentials to access the dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
               Username
             </label>
             <input
+              id="username"
+              name="username"
+              ref={usernameRef}
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              placeholder="Enter your username"
+              required
+              autoComplete="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="Admin username"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <input
+              id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              required
+              autoComplete="current-password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black outline-none transition-all"
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-100 rounded-md">
+            <div role="alert" className="p-3 bg-red-50 border border-red-100 rounded-md">
               <p className="text-red-600 text-sm text-center font-medium">{error}</p>
             </div>
           )}
@@ -84,7 +107,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black hover:bg-gray-800 text-white font-medium py-2.5 rounded-md flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-black hover:bg-gray-800 text-white font-medium py-2.5 rounded-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? "Signing in..." : "Sign In"}
             {!loading && <ChevronRight size={18} />}

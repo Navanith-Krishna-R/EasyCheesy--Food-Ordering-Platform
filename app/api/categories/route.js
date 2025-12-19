@@ -1,54 +1,48 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Category from '@/models/Category';
+import { getSession } from '@/lib/auth';
 
 export async function GET() {
   await dbConnect();
   try {
-    const categories = await Category.find({});
+    // Lean queries for faster read-only metadata
+    const categories = await Category.find({}).sort({ name: 1 }).lean();
     return NextResponse.json(categories);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   await dbConnect();
   try {
-    const body = await request.json();
+    const { name } = await request.json();
 
-    // 1. Validate Name
-    if (!body.name) {
-        return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    }
-    
-    // 2. Auto-Generate Slug
-    // Example: "Spicy Burger!" -> "spicy-burger"
-    const slug = body.name.toLowerCase().trim()
-      .replace(/ /g, '-')
-      .replace(/[^\w-]+/g, '');
-
-    if (!slug) {
-        return NextResponse.json({ error: 'Category name invalid (resulted in empty slug)' }, { status: 400 });
+    if (!name?.trim()) {
+      return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
     }
 
-    // 3. Check for Duplicate
-    const existing = await Category.findOne({ slug });
-    if (existing) {
-        return NextResponse.json({ error: 'Category already exists' }, { status: 409 });
-    }
+    // Senior Approach: Use Regex for robust slugification
+    const slug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special chars
+      .replace(/[\s_-]+/g, '-')  // Replace spaces/underscores with single hyphen
+      .replace(/^-+|-+$/g, '');  // Trim hyphens from ends
 
-    // 4. Create
-    const newCategory = await Category.create({
-        name: body.name,
-        slug: slug
-    });
-    
+    // Atomic creation handles the "Duplicate Check" via MongoDB unique index
+    // This avoids the "Check-then-Act" race condition
+    const newCategory = await Category.create({ name, slug });
     return NextResponse.json(newCategory, { status: 201 });
 
   } catch (error) {
-    // CRITICAL: Log the actual error to your terminal
-    console.error("❌ CATEGORY API ERROR:", error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error.code === 11000) {
+      return NextResponse.json({ error: 'A category with this name already exists' }, { status: 409 });
+    }
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
