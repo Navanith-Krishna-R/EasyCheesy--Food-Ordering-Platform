@@ -6,10 +6,10 @@ export const dynamic = "force-dynamic";
 
 async function getMenuData() {
   try {
-    // we use the full URL if calling from the server,
+    // e use the full URL if calling from the server,
     // or a direct database call if this is a local project.
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/menu?publictrue`, {
+    const res = await fetch(`${baseUrl}/api/menu?public=true`, {
       cache: "no-store", // SSR: Don't cache, always get fresh menu
     });
 
