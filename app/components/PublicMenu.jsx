@@ -56,12 +56,20 @@ export default function PublicMenu({
   }, [initialCategories]);
 
   /* ---------------- Optimized Sorting Logic ---------------- */
+/* ---------------- Optimized Sorting Logic ---------------- */
   const sortedCategories = useMemo(() => {
     if (!categories.length) return [];
 
+    // Helper to count items for a category (checks ID AND Slug)
+    const countItems = (cat) => {
+      return items.filter(
+        (i) => i.category === cat._id || i.category === cat.slug
+      ).length;
+    };
+
     return [...categories].sort((a, b) => {
-      const countA = items.filter((i) => i.category === getCatId(a)).length;
-      const countB = items.filter((i) => i.category === getCatId(b)).length;
+      const countA = countItems(a);
+      const countB = countItems(b);
 
       if (countA === 0 && countB > 0) return 1;
       if (countA > 0 && countB === 0) return -1;
@@ -83,9 +91,10 @@ export default function PublicMenu({
     }
   }, [sortedCategories, items, activeCategory]);
 
-  /* ---------------- Helpers ---------------- */
-  const getCategoryItemCount = (catId) =>
-    items.filter((i) => i.category === catId).length;
+/* ---------------- Helpers ---------------- */
+  // UPDATED: Accepts the full category object to check both ID and Slug
+  const getCategoryItemCount = (cat) =>
+    items.filter((i) => i.category === cat._id || i.category === cat.slug).length;
 
   const scrollToCategory = (catId) => {
     setActiveCategory(catId);
@@ -242,7 +251,7 @@ export default function PublicMenu({
               <div className="flex gap-3 min-w-max py-2">
                 {sortedCategories.map((cat) => {
                   const id = getCatId(cat);
-                  const isEmpty = getCategoryItemCount(id) === 0;
+                  const isEmpty = getCategoryItemCount(cat) === 0;
 
                   return (
                     <button
@@ -286,7 +295,11 @@ export default function PublicMenu({
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-12 flex-1">
         {sortedCategories.map((cat) => {
           const id = getCatId(cat);
-          const catItems = items.filter((i) => i.category === id);
+          // FIX: Filter checks if item matches Category ID OR Category Slug
+          const catItems = items.filter(
+            (i) => i.category === cat._id || i.category === cat.slug
+          );
+
           if (catItems.length === 0) return null;
 
           return (
