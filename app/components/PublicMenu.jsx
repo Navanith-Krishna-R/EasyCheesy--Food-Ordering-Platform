@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
+// Added 'X' for the close button
 import {
   Loader2,
   ChevronLeft,
@@ -7,7 +8,10 @@ import {
   AlertCircle,
   RefreshCw,
   Phone,
+  X,
 } from "lucide-react";
+// Added framer-motion for smooth expand/retract animations
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PublicMenu({
   initialCategories = [],
@@ -21,6 +25,9 @@ export default function PublicMenu({
     !initialCategories.length && !fetchError
   );
   const [error, setError] = useState(fetchError);
+
+  // NEW: State to track the expanded card
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -56,11 +63,9 @@ export default function PublicMenu({
   }, [initialCategories]);
 
   /* ---------------- Optimized Sorting Logic ---------------- */
-/* ---------------- Optimized Sorting Logic ---------------- */
   const sortedCategories = useMemo(() => {
     if (!categories.length) return [];
 
-    // Helper to count items for a category (checks ID AND Slug)
     const countItems = (cat) => {
       return items.filter(
         (i) => i.category === cat._id || i.category === cat.slug
@@ -91,10 +96,10 @@ export default function PublicMenu({
     }
   }, [sortedCategories, items, activeCategory]);
 
-/* ---------------- Helpers ---------------- */
-  // UPDATED: Accepts the full category object to check both ID and Slug
+  /* ---------------- Helpers ---------------- */
   const getCategoryItemCount = (cat) =>
-    items.filter((i) => i.category === cat._id || i.category === cat.slug).length;
+    items.filter((i) => i.category === cat._id || i.category === cat.slug)
+      .length;
 
   const scrollToCategory = (catId) => {
     setActiveCategory(catId);
@@ -167,6 +172,15 @@ export default function PublicMenu({
     return () => observer.disconnect();
   }, [sortedCategories, loading]);
 
+  // NEW: Lock body scroll when popup is open
+  useEffect(() => {
+    if (selectedItem) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [selectedItem]);
+
   /* ---------------- Loading State ---------------- */
   if (loading) {
     return (
@@ -196,12 +210,14 @@ export default function PublicMenu({
           <div className="flex flex-col gap-3">
             <button
               onClick={() => window.location.reload()}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold transition-all shadow-md active:scale-95">
+              className="flex items-center justify-center gap-2 w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold transition-all shadow-md active:scale-95"
+            >
               <RefreshCw size={20} /> Reload Menu
             </button>
             <a
               href="tel:+917892278183"
-              className="flex items-center justify-center gap-2 w-full py-3 border-2 border-amber-600 text-amber-700 hover:bg-amber-50 rounded-xl font-bold transition-all">
+              className="flex items-center justify-center gap-2 w-full py-3 border-2 border-amber-600 text-amber-700 hover:bg-amber-50 rounded-xl font-bold transition-all"
+            >
               <Phone size={20} /> Contact Restaurant
             </a>
           </div>
@@ -213,7 +229,7 @@ export default function PublicMenu({
   return (
     <div className="min-h-screen bg-amber-50 text-gray-800 flex flex-col">
       {/* ---------------- Header ---------------- */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="relative w-full py-5 flex justify-center items-center overflow-hidden border-b-[3px] border-amber-100 border-double">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-amber-100/60 via-[#FFFCF5] to-[#FFFCF5]"></div>
           <div className="absolute h-0.5 w-full top-1/2 -translate-y-1/2 bg-linear-to-r from-transparent via-amber-300 to-transparent opacity-70"></div>
@@ -222,7 +238,8 @@ export default function PublicMenu({
             <div className="absolute inset-1.5 rounded-full border border-amber-300/40 pointer-events-none"></div>
             <h1
               className="text-2xl md:text-3xl font-bold text-[#FFF8E7] italic drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)] mb-0.5 leading-tight"
-              style={{ fontFamily: "var(--font-anek-kannada)" }}>
+              style={{ fontFamily: "var(--font-anek-kannada)" }}
+            >
               ಈಜ಼ೀ ಚೀಜ಼ೀ
             </h1>
             <h2 className="text-sm md:text-lg text-amber-200 uppercase font-black tracking-[0.2em] drop-shadow-sm">
@@ -241,13 +258,15 @@ export default function PublicMenu({
                 canScrollLeft
                   ? "bg-[#FFFCF5] border-amber-400 text-amber-800 hover:bg-amber-100 shadow-sm hover:scale-110"
                   : "bg-transparent border-amber-100 text-amber-200 cursor-not-allowed"
-              }`}>
+              }`}
+            >
               <ChevronLeft size={20} />
             </button>
 
             <div
               ref={scrollRef}
-              className="flex-1 mx-2 px-2 overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar">
+              className="flex-1 mx-2 px-2 overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar"
+            >
               <div className="flex gap-3 min-w-max py-2">
                 {sortedCategories.map((cat) => {
                   const id = getCatId(cat);
@@ -269,7 +288,8 @@ export default function PublicMenu({
                         fontFamily: isEmpty
                           ? "inherit"
                           : "var(--font-serif-royal)",
-                      }}>
+                      }}
+                    >
                       {cat.name}
                     </button>
                   );
@@ -284,7 +304,8 @@ export default function PublicMenu({
                 canScrollRight
                   ? "bg-[#FFFCF5] border-amber-400 text-amber-800 hover:bg-amber-100 shadow-sm hover:scale-110"
                   : "bg-transparent border-amber-100 text-amber-200 cursor-not-allowed"
-              }`}>
+              }`}
+            >
               <ChevronRight size={20} />
             </button>
           </div>
@@ -295,7 +316,6 @@ export default function PublicMenu({
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-12 flex-1">
         {sortedCategories.map((cat) => {
           const id = getCatId(cat);
-          // FIX: Filter checks if item matches Category ID OR Category Slug
           const catItems = items.filter(
             (i) => i.category === cat._id || i.category === cat.slug
           );
@@ -311,7 +331,8 @@ export default function PublicMenu({
                 <svg
                   className="flex-1 h-3"
                   viewBox="0 0 200 10"
-                  preserveAspectRatio="none">
+                  preserveAspectRatio="none"
+                >
                   <path
                     d="M0 5 C 20 0, 40 10, 60 5 S 100 0, 140 5 S 180 10, 200 5"
                     fill="none"
@@ -324,9 +345,13 @@ export default function PublicMenu({
 
               <div className="flex flex-col gap-x-6 gap-y-8">
                 {catItems.map((item) => (
-                  <div
+                  // Changed div to motion.div for animation linkage
+                  <motion.div
+                    layoutId={`card-${item._id || item.id}`}
                     key={item._id || item.id}
-                    className="group relative rounded-xl p-4 border shadow-[0_8px_30px_rgba(251,191,36,0.15)] bg-white border-amber-200 transition-all duration-300 ease-out flex gap-5">
+                    onClick={() => setSelectedItem(item)}
+                    className="group relative rounded-xl p-4 border shadow-[0_8px_30px_rgba(251,191,36,0.15)] bg-white border-amber-200 transition-all duration-300 ease-out flex gap-5 cursor-pointer"
+                  >
                     <div className="relative shrink-0 w-32 h-32">
                       <div className="absolute inset-0 bg-amber-100 rounded-2xl rotate-7 group-hover:rotate-6 transition-transform duration-300 ease-out" />
                       <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white shadow-sm">
@@ -358,7 +383,7 @@ export default function PublicMenu({
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </section>
@@ -367,20 +392,90 @@ export default function PublicMenu({
       </main>
 
       {/* ---------------- Footer ---------------- */}
-      <footer className="sticky bottom-0 z-50 bg-white/95 backdrop-blur-md border-t border-gray-200">
+      <footer className="sticky bottom-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200">
         <div className="relative w-full bg-[#FFFCF5] border-t-4 border-double border-amber-200 shadow-sm">
           <div className="max-w-4xl mx-auto flex items-center px-2 py-2">
             <p className="text-sm text-amber-900 italic font-medium mx-auto">
               For orders and inquiries, contact us at:{" "}
               <a
                 href="tel:+917892278183"
-                className="underline font-bold text-amber-800 hover:text-amber-900">
+                className="underline font-bold text-amber-800 hover:text-amber-900"
+              >
                 +91 78922 78183
               </a>
             </p>
           </div>
         </div>
       </footer>
+
+      {/* ---------------- Expanded Card Popup ---------------- */}
+      <AnimatePresence>
+        {selectedItem && (
+          <>
+            {/* Blurred Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedItem(null)}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-60"
+            />
+
+            {/* Expanded Card */}
+            <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-70 p-4">
+              <motion.div
+                layoutId={`card-${selectedItem._id || selectedItem.id}`}
+                className="relative w-full max-w-lg bg-white rounded-xl p-4 border border-amber-200 shadow-2xl pointer-events-auto flex gap-5 overflow-hidden"
+              >
+                {/* Close Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedItem(null);
+                  }}
+                  className="absolute top-2 right-2 z-10 p-1 bg-white/80 rounded-full hover:bg-amber-100 text-amber-800 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+
+                {/* Retained UI Content */}
+                <div className="relative shrink-0 w-32 h-32">
+                  <div className="absolute inset-0 bg-amber-100 rounded-2xl rotate-6" />
+                  <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white shadow-sm">
+                    <img
+                      src={selectedItem.image}
+                      alt={selectedItem.name}
+                      className="w-full h-full object-cover scale-110" // Slightly scaled to look active
+                      onError={(e) =>
+                        (e.target.src = "https://via.placeholder.com/150")
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 flex flex-col justify-between py-1">
+                  <div>
+                    <div className="flex justify-between items-start pr-8">
+                      <h3 className="font-serif font-bold text-xl text-stone-800 leading-tight">
+                        {selectedItem.name}
+                      </h3>
+                    </div>
+                    {/* Removed line-clamp to show full description in popup */}
+                    <p className="text-sm text-stone-500 mt-2 leading-relaxed font-light">
+                      {selectedItem.description}
+                    </p>
+                  </div>
+                  <div className="flex justify-between items-end mt-3 border-t border-dashed border-stone-100 pt-3">
+                    <span className="font-serif font-bold text-2xl text-amber-700">
+                      ₹{selectedItem.price} /-
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
