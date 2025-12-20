@@ -19,14 +19,14 @@ export const metadata: Metadata = {
     default: "Easy Cheesy",
     template: "%s | Easy Cheesy",
   },
-  description: "Easy Cheesy – Simple, eat easy, feel cheesy.",
+  description: "Easy Cheesy – Eat easy, feel cheesy.",
   applicationName: "Easy Cheesy",
 
   metadataBase: new URL("https://easycheesy.store"), // change to your domain
 
   openGraph: {
     title: "Easy Cheesy",
-    description: "Simple, eat easy, feel cheesy.",
+    description: "Eat easy, feel cheesy.",
     url: "https://easycheesy.store",
     siteName: "Easy Cheesy",
     images: [
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Easy Cheesy",
-    description: "Simple, eat easy, feel cheesy.",
+    description: "Eat easy, feel cheesy.",
     images: ["/icon.png"],
   },
 
