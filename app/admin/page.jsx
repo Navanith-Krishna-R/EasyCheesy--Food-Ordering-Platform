@@ -169,15 +169,15 @@ const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
 // 4. Compact Category Row
 const CategoryCard = React.memo(({ cat, onToggle, onDelete, itemCount }) => (
   <div className="bg-gray-100 border border-gray-200 p-4 flex justify-between items-center hover:bg-gray-50 group">
-    <div className="flex flex-col ">
+    <div className="flex flex-col">
       <span
         className={`font-bold text-xl text-gray-800 ${
           !cat.isVisible && "opacity-50"
         }`}>
         {cat.name}
       </span>
-      <span className="text-[10px] font-bold bg-yellow-500 p-1 text-center text-black borderfont-medium uppercase tracking-wider mt-0.5">
-        {itemCount} Items
+      <span className="text-[10px] font-bold bg-yellow-500 p-1 text-center text-black borderfont-medium uppercase tracking-wider w-18 mt-0.5">
+        {itemCount} Items 
       </span>
     </div>
     <div className="flex items-center gap-2">
