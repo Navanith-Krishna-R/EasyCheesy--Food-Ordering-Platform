@@ -6,16 +6,12 @@ import { getSession } from "@/lib/auth";
 import mongoose from "mongoose";
 
 export async function PUT(request, { params }) {
-  console.log("PUT /api/categories/[id] called");
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // 1. Await params (Next.js 15 requirement)
   const { id } = await params;
-  console.log("Updating Category ID:", id);
 
-  // 2. Validate ID format to prevent 500 errors
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return NextResponse.json({ error: "Invalid Category ID" }, { status: 400 });
   }
@@ -25,17 +21,42 @@ export async function PUT(request, { params }) {
   try {
     const body = await request.json();
 
-    // 3. Perform Update
+    // --- NEW DUPLICATE CHECK START ---
+    if (body.name) {
+      const trimmedName = body.name.trim();
+
+      // Check if another category exists with this EXACT name (case-insensitive)
+      // $ne: id -> means "Not Equal to current ID" (so you can save the same name to itself)
+      const duplicate = await Category.findOne({
+        name: { $regex: new RegExp(`^${trimmedName}$`, "i") },
+        _id: { $ne: id },
+      });
+
+      if (duplicate) {
+        return NextResponse.json(
+          { error: `Category "${trimmedName}" already exists` },
+          { status: 409 } // 409 = Conflict
+        );
+      }
+
+      // Generate Slug if passing duplicate check
+      body.slug = trimmedName
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+    // --- NEW DUPLICATE CHECK END ---
+
     const updated = await Category.findByIdAndUpdate(
       id,
       { $set: body },
       { new: true, runValidators: true }
     );
 
-    // 4. If null, the ID doesn't exist in DB
     if (!updated)
       return NextResponse.json(
-        { error: "Category not found in DB" },
+        { error: "Category not found" },
         { status: 404 }
       );
 

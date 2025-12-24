@@ -167,37 +167,51 @@ const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
 ));
 
 // 4. Compact Category Row
-const CategoryCard = React.memo(({ cat, onToggle, onDelete, itemCount }) => (
-  <div className="bg-gray-100 border border-gray-200 p-4 flex justify-between items-center hover:bg-gray-50 group">
-    <div className="flex flex-col">
-      <span
-        className={`font-bold text-xl text-gray-800 ${
-          !cat.isVisible && "opacity-50"
-        }`}>
-        {cat.name}
-      </span>
-      <span className="text-[10px] font-bold bg-yellow-500 p-1 text-center text-black borderfont-medium uppercase tracking-wider w-18 mt-0.5">
-        {itemCount} Items 
-      </span>
+// 4. Compact Category Row (Updated)
+const CategoryCard = React.memo(
+  ({ cat, onToggle, onEdit, onDelete, itemCount }) => (
+    <div className="bg-gray-100 border border-gray-200 p-4 flex justify-between items-center hover:bg-gray-50 group">
+      <div className="flex flex-col">
+        <span
+          className={`font-bold text-xl text-gray-800 ${
+            !cat.isVisible && "opacity-50"
+          }`}>
+          {cat.name}
+        </span>
+        <span className="text-[10px] font-bold bg-yellow-500 p-1 text-center text-black borderfont-medium uppercase tracking-wider w-18 mt-0.5">
+          {itemCount} Items
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        {/* Toggle Button */}
+        <button
+          onClick={() => onToggle(cat)}
+          className={`p-1.5 rounded-md ${
+            cat.isVisible
+              ? "text-green-600 bg-green-200 hover:bg-green-100"
+              : "text-gray-400 bg-gray-100"
+          }`}>
+          {cat.isVisible ? <Eye size={20} /> : <EyeOff size={20} />}
+        </button>
+
+        {/* --- NEW EDIT BUTTON START --- */}
+        <button
+          onClick={() => onEdit(cat)}
+          className="p-1.5 text-blue-600 bg-blue-200 hover:bg-blue-100 rounded-md transition-colors">
+          <Edit2 size={20} />
+        </button>
+        {/* --- NEW EDIT BUTTON END --- */}
+
+        {/* Delete Button */}
+        <button
+          onClick={() => onDelete(cat)}
+          className="p-1.5 text-red-500 hover:bg-red-100 bg-red-200 rounded-md transition-colors">
+          <Trash2 size={20} />
+        </button>
+      </div>
     </div>
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => onToggle(cat)}
-        className={`p-1.5 rounded-md ${
-          cat.isVisible
-            ? "text-green-600 bg-green-200 hover:bg-green-100"
-            : "text-gray-400 bg-gray-100"
-        }`}>
-        {cat.isVisible ? <Eye size={20} /> : <EyeOff size={20} />}
-      </button>
-      <button
-        onClick={() => onDelete(cat)}
-        className="p-1.5 text-red-500 hover:bg-red-100 bg-red-200 rounded-md transition-colors">
-        <Trash2 size={20} />
-      </button>
-    </div>
-  </div>
-));
+  )
+);
 
 // 5. Optimized Modal Form
 const EditorModal = ({
@@ -374,35 +388,41 @@ export default function AdminDashboard() {
   };
 
   const openForm = (item = null) => {
-  setEditingItem(item);
-  if (activeTab === "items") {
-    if (item) {
-      // FIX: Always extract the Category ID (not the slug)
-      const categoryId = 
-        item.category && typeof item.category === "object"
-          ? item.category._id  // It's an object, get the ID
-          : item.category;     // It's already an ID string
+    setEditingItem(item);
+    if (activeTab === "items") {
+      if (item) {
+        // FIX: Always extract the Category ID (not the slug)
+        const categoryId =
+          item.category && typeof item.category === "object"
+            ? item.category._id // It's an object, get the ID
+            : item.category; // It's already an ID string
 
-      setItemFormData({
-        ...item,
-        price: item.price.toString(),
-        category: categoryId, // Set the ID
-      });
+        setItemFormData({
+          ...item,
+          price: item.price.toString(),
+          category: categoryId, // Set the ID
+        });
+      } else {
+        // Default to the ID of the first category
+        setItemFormData({
+          name: "",
+          description: "",
+          price: "",
+          category: data.categories[0]?._id || "",
+          image: "",
+        });
+      }
     } else {
-      // Default to the ID of the first category
-      setItemFormData({
-        name: "",
-        description: "",
-        price: "",
-        category: data.categories[0]?._id || "",
-        image: "",
-      });
+      if (item) {
+        // If editing, fill the name
+        setCatFormData({ name: item.name });
+      } else {
+        // If adding new, clear the name
+        setCatFormData({ name: "" });
+      }
     }
-  } else {
-    setCatFormData({ name: "" });
-  }
-  setIsFormOpen(true);
-};
+    setIsFormOpen(true);
+  };
 
   const itemsByCategory = useMemo(() => {
     const groups = {};
@@ -610,6 +630,7 @@ export default function AdminDashboard() {
                   itemCount={(itemsByCategory[cat.slug] || []).length}
                   onToggle={(c) => handleToggle("category", c)}
                   onDelete={(c) => requestDelete(c)}
+                  onEdit={openForm}
                 />
               ))}
             </div>
