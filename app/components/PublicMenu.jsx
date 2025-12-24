@@ -210,14 +210,12 @@ export default function PublicMenu({
           <div className="flex flex-col gap-3">
             <button
               onClick={() => window.location.reload()}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold transition-all shadow-md active:scale-95"
-            >
+              className="flex items-center justify-center gap-2 w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold transition-all shadow-md active:scale-95">
               <RefreshCw size={20} /> Reload Menu
             </button>
             <a
               href="tel:+917892278183"
-              className="flex items-center justify-center gap-2 w-full py-3 border-2 border-amber-600 text-amber-700 hover:bg-amber-50 rounded-xl font-bold transition-all"
-            >
+              className="flex items-center justify-center gap-2 w-full py-3 border-2 border-amber-600 text-amber-700 hover:bg-amber-50 rounded-xl font-bold transition-all">
               <Phone size={20} /> Contact Restaurant
             </a>
           </div>
@@ -238,8 +236,7 @@ export default function PublicMenu({
             <div className="absolute inset-1.5 rounded-full border border-amber-300/40 pointer-events-none"></div>
             <h1
               className="text-2xl md:text-3xl font-bold text-[#FFF8E7] italic drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)] mb-0.5 leading-tight"
-              style={{ fontFamily: "var(--font-anek-kannada)" }}
-            >
+              style={{ fontFamily: "var(--font-anek-kannada)" }}>
               ಈಜ಼ೀ ಚೀಜ಼ೀ
             </h1>
             <h2 className="text-sm md:text-lg text-amber-200 uppercase font-black tracking-[0.2em] drop-shadow-sm">
@@ -258,15 +255,13 @@ export default function PublicMenu({
                 canScrollLeft
                   ? "bg-[#FFFCF5] border-amber-400 text-amber-800 hover:bg-amber-100 shadow-sm hover:scale-110"
                   : "bg-transparent border-amber-100 text-amber-200 cursor-not-allowed"
-              }`}
-            >
+              }`}>
               <ChevronLeft size={20} />
             </button>
 
             <div
               ref={scrollRef}
-              className="flex-1 mx-2 px-2 overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar"
-            >
+              className="flex-1 mx-2 px-2 overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar">
               <div className="flex gap-3 min-w-max py-2">
                 {sortedCategories.map((cat) => {
                   const id = getCatId(cat);
@@ -288,8 +283,7 @@ export default function PublicMenu({
                         fontFamily: isEmpty
                           ? "inherit"
                           : "var(--font-serif-royal)",
-                      }}
-                    >
+                      }}>
                       {cat.name}
                     </button>
                   );
@@ -304,8 +298,7 @@ export default function PublicMenu({
                 canScrollRight
                   ? "bg-[#FFFCF5] border-amber-400 text-amber-800 hover:bg-amber-100 shadow-sm hover:scale-110"
                   : "bg-transparent border-amber-100 text-amber-200 cursor-not-allowed"
-              }`}
-            >
+              }`}>
               <ChevronRight size={20} />
             </button>
           </div>
@@ -313,7 +306,7 @@ export default function PublicMenu({
       </header>
 
       {/* ---------------- Menu Content ---------------- */}
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-12 flex-1">
+      <main className="max-w-max px-4 py-6 space-y-12 flex flex-col justify-center item-center mx-auto w-full">
         {sortedCategories.map((cat) => {
           const id = getCatId(cat);
           const catItems = items.filter(
@@ -331,8 +324,7 @@ export default function PublicMenu({
                 <svg
                   className="flex-1 h-3"
                   viewBox="0 0 200 10"
-                  preserveAspectRatio="none"
-                >
+                  preserveAspectRatio="none">
                   <path
                     d="M0 5 C 20 0, 40 10, 60 5 S 100 0, 140 5 S 180 10, 200 5"
                     fill="none"
@@ -343,18 +335,17 @@ export default function PublicMenu({
                 </svg>
               </div>
 
-              <div className="flex flex-col gap-x-6 gap-y-8">
+              <div className="flex flex-col gap-x-3 gap-y-3">
                 {catItems.map((item) => (
                   // Changed div to motion.div for animation linkage
                   <motion.div
                     layoutId={`card-${item._id || item.id}`}
                     key={item._id || item.id}
                     onClick={() => setSelectedItem(item)}
-                    className="group relative rounded-xl p-4 border shadow-[0_8px_30px_rgba(251,191,36,0.15)] bg-white border-amber-200 transition-all duration-300 ease-out flex gap-5 cursor-pointer"
-                  >
+                    className="group relative rounded-xl p-4 h-40 border shadow-[0_8px_30px_rgba(251,191,36,0.15)] bg-white border-amber-200 transition-all duration-300 ease-out flex gap-5 cursor-pointer">
                     <div className="relative shrink-0 w-32 h-32">
                       <div className="absolute inset-0 bg-amber-100 rounded-2xl rotate-7 group-hover:rotate-6 transition-transform duration-300 ease-out" />
-                      <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white shadow-sm">
+                      <div className="relative w-30 h-30 rounded-2xl overflow-hidden border-2 border-white shadow-sm">
                         <img
                           src={item.image}
                           alt={item.name}
@@ -366,10 +357,10 @@ export default function PublicMenu({
                       </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col justify-between py-1">
+                    <div className="flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-serif font-bold text-xl text-stone-800 leading-tight group-hover:text-amber-700 transition-colors">
+                          <h3 className="font-serif font-bold text-lg text-stone-800 leading-tight group-hover:text-amber-700 transition-colors">
                             {item.name}
                           </h3>
                         </div>
@@ -377,7 +368,19 @@ export default function PublicMenu({
                           {item.description}
                         </p>
                       </div>
-                      <div className="flex justify-between items-end mt-3 border-t border-dashed border-stone-100 pt-3">
+                      <div className="flex justify-start gap-8 items-end mt-3 border-t border-dashed border-stone-100 pt-3">
+                        <div className="relative inline-block">
+                          {/* The Price Text */}
+                          <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
+                            ₹{item.price}
+                          </span>
+
+                          {/* Line 1 of the Cross (\) */}
+                          <span className="absolute top-1/2 left-1/2 w-[100%] h-[2px] bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none"></span>
+
+                          {/* Line 2 of the Cross (/) */}
+                          <span className="absolute top-1/2 left-1/2 w-[100%] h-[2px] bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></span>
+                        </div>
                         <span className="font-serif font-bold text-2xl text-amber-700">
                           ₹{item.price} /-
                         </span>
@@ -399,8 +402,7 @@ export default function PublicMenu({
               For orders and inquiries, contact us at:{" "}
               <a
                 href="tel:+917892278183"
-                className="underline font-bold text-amber-800 hover:text-amber-900"
-              >
+                className="underline font-bold text-amber-800 hover:text-amber-900">
                 +91 78922 78183
               </a>
             </p>
@@ -425,16 +427,14 @@ export default function PublicMenu({
             <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-70 p-4">
               <motion.div
                 layoutId={`card-${selectedItem._id || selectedItem.id}`}
-                className="relative w-full max-w-lg bg-white rounded-xl p-4 border border-amber-200 shadow-2xl pointer-events-auto flex gap-5 overflow-hidden"
-              >
+                className="relative w-full max-w-lg bg-white rounded-xl p-4 border border-amber-200 shadow-2xl pointer-events-auto flex gap-5 overflow-hidden">
                 {/* Close Button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedItem(null);
                   }}
-                  className="absolute top-2 right-2 z-10 p-1 bg-white/80 rounded-full hover:bg-amber-100 text-amber-800 transition-colors"
-                >
+                  className="absolute top-2 right-2 z-10 p-1 bg-white/80 rounded-full hover:bg-amber-100 text-amber-800 transition-colors">
                   <X size={20} />
                 </button>
 
