@@ -309,9 +309,24 @@ export default function PublicMenu({
       <main className="max-w-max px-4 py-6 space-y-12 flex flex-col justify-center item-center mx-auto w-full">
         {sortedCategories.map((cat) => {
           const id = getCatId(cat);
-          const catItems = items.filter(
-            (i) => i.category === cat._id || i.category === cat.slug
-          );
+          const catItems = items
+            .filter((i) => i.category === cat._id || i.category === cat.slug)
+            .sort((a, b) => {
+              const priceA = parseFloat(a.price);
+              const priceB = parseFloat(b.price);
+
+              const isLowA = priceA <= 30;
+              const isLowB = priceB <= 30;
+
+              // If A is <= 30 but B isn't, A goes last (return 1)
+              if (isLowA && !isLowB) return 1;
+
+              // If B is <= 30 but A isn't, B goes last (return -1)
+              if (!isLowA && isLowB) return -1;
+
+              // Otherwise, sort by price ascending
+              return priceA - priceB;
+            });
 
           if (catItems.length === 0) return null;
 
@@ -376,10 +391,10 @@ export default function PublicMenu({
                           </span>
 
                           {/* Line 1 of the Cross (\) */}
-                          <span className="absolute top-1/2 left-1/2 w-[100%] h-[2px] bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none"></span>
+                          <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none"></span>
 
                           {/* Line 2 of the Cross (/) */}
-                          <span className="absolute top-1/2 left-1/2 w-[100%] h-[2px] bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></span>
+                          <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></span>
                         </div>
                         <span className="font-serif font-bold text-2xl text-amber-700">
                           ₹{item.price} /-
