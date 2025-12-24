@@ -374,22 +374,35 @@ export default function AdminDashboard() {
   };
 
   const openForm = (item = null) => {
-    setEditingItem(item);
-    if (activeTab === "items") {
-      if (item) setItemFormData({ ...item, price: item.price.toString() });
-      else
-        setItemFormData({
-          name: "",
-          description: "",
-          price: "",
-          category: data.categories[0]?.slug || "",
-          image: "",
-        });
+  setEditingItem(item);
+  if (activeTab === "items") {
+    if (item) {
+      // FIX: Always extract the Category ID (not the slug)
+      const categoryId = 
+        item.category && typeof item.category === "object"
+          ? item.category._id  // It's an object, get the ID
+          : item.category;     // It's already an ID string
+
+      setItemFormData({
+        ...item,
+        price: item.price.toString(),
+        category: categoryId, // Set the ID
+      });
     } else {
-      setCatFormData({ name: "" });
+      // Default to the ID of the first category
+      setItemFormData({
+        name: "",
+        description: "",
+        price: "",
+        category: data.categories[0]?._id || "",
+        image: "",
+      });
     }
-    setIsFormOpen(true);
-  };
+  } else {
+    setCatFormData({ name: "" });
+  }
+  setIsFormOpen(true);
+};
 
   const itemsByCategory = useMemo(() => {
     const groups = {};
@@ -661,7 +674,7 @@ export default function AdminDashboard() {
                   }
                   className="mt-1 w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all h-[38px]">
                   {data.categories.map((c) => (
-                    <option key={c._id} value={c.slug}>
+                    <option key={c._id} value={c._id}>
                       {c.name}
                     </option>
                   ))}
