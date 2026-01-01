@@ -10,23 +10,43 @@ export async function PUT(request, { params }) {
 
   const { id } = await params;
 
-  // CRITICAL FIX: Validate ID before querying to prevent CastError
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ error: 'Invalid Item ID format' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid Item ID' }, { status: 400 });
   }
 
   await dbConnect();
   try {
     const body = await request.json();
+    console.log("PUT Request Body:", body);
+
+    // Sanitize
+    if (body.offerPrice === "") {
+        body.offerPrice = null;
+    }
+
+    // Explicitly construct the update object to ensure fields aren't lost
+    const updateData = {
+        name: body.name,
+        description: body.description,
+        price: body.price,
+        offerPrice: body.offerPrice, // Ensure this is passed
+        category: body.category,
+        image: body.image,
+        isVisible: body.isVisible
+    };
+
     const updatedItem = await MenuItem.findByIdAndUpdate(
       id, 
-      { $set: body }, 
+      { $set: updateData }, 
       { new: true, runValidators: true } 
     ).lean();
+
+    console.log("Updated DB Result:", updatedItem); // Check console to see if offerPrice is here
 
     if (!updatedItem) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
     return NextResponse.json(updatedItem);
   } catch (error) {
+    console.error("PUT_ERR", error);
     return NextResponse.json({ error: 'Update failed' }, { status: 500 });
   }
 }

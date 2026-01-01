@@ -386,10 +386,11 @@ export default function PublicMenu({
                       <div className="flex justify-start gap-8 items-end mt-3 border-t border-dashed border-stone-100 pt-3">
                         <div className="relative inline-block">
                           {/* The Price Text */}
-                          <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
-                            ₹{item.price}
-                          </span>
-
+                          {item.price != 0 || item.price === "0" ? (
+                            <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
+                              ₹{item.price}
+                            </span>
+                          ) : null}
                           {/* Line 1 of the Cross (\) */}
                           <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none"></span>
 
@@ -397,7 +398,7 @@ export default function PublicMenu({
                           <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></span>
                         </div>
                         <span className="font-serif font-bold text-2xl text-amber-700">
-                          ₹{item.price} /-
+                          ₹{item.offerPrice} /-
                         </span>
                       </div>
                     </div>

@@ -56,26 +56,36 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    
-    console.log("POST /api/menu called with:", body);
+    console.log("POST /api/menu payload:", body);
 
-    // FIX: Convert "slug" (string) to "ObjectId"
     let categoryId = body.category;
 
-    // If the frontend sent a slug string (e.g., "burger"), look up the real ID
+    // --- FIX START: SMART DETECTION ---
     if (typeof body.category === 'string') {
-      const categoryDoc = await Category.findOne({ slug: body.category });
-      
-      if (!categoryDoc) {
-         return NextResponse.json({ error: "Invalid Category: " + body.category }, { status: 400 });
+      // 1. Is it a valid 24-character Mongo ID?
+      if (/^[0-9a-fA-F]{24}$/.test(body.category)) {
+         categoryId = body.category; // It's already an ID, use it directly
+      } 
+      // 2. Otherwise, treat it as a Slug
+      else {
+         const categoryDoc = await Category.findOne({ slug: body.category });
+         if (!categoryDoc) {
+            return NextResponse.json({ error: "Invalid Category slug: " + body.category }, { status: 400 });
+         }
+         categoryId = categoryDoc._id;
       }
-      categoryId = categoryDoc._id;
+    }
+    // ----------------------------------
+
+    // Sanitize offerPrice
+    if (body.offerPrice === "" || body.offerPrice === undefined) {
+      body.offerPrice = null;
     }
 
-    // Create the item with the resolved ObjectId
     const newItem = await MenuItem.create({
       ...body,
-      category: categoryId, // Use the ID, not the string
+      category: categoryId, // Uses the resolved ID
+      offerPrice: body.offerPrice,
       isVisible: body.isVisible ?? true,
     });
 

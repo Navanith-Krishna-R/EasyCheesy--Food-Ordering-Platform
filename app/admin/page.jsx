@@ -92,6 +92,7 @@ const ConfirmModal = ({
 const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
   <div className="group bg-white border-b border-gray-100 last:border-0 p-3 hover:bg-gray-50 transition-colors">
     <div className="grid grid-cols-[50px_1fr_auto] md:grid-cols-[60px_2fr_1fr_auto] gap-3 items-center">
+      {/* 1. Image Section */}
       <div className="h-12 w-12 md:h-14 md:w-14 bg-gray-100 rounded-md overflow-hidden shrink-0 border border-gray-200">
         {item.image ? (
           <img
@@ -108,6 +109,7 @@ const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
         )}
       </div>
 
+      {/* 2. Content Section (Name, Desc, Mobile Price) */}
       <div className="min-w-0 flex flex-col justify-center">
         <div className="flex items-center gap-2">
           <h4
@@ -125,17 +127,46 @@ const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
         <p className="text-[11px] md:text-xs text-gray-500 truncate mt-0.5">
           {item.description}
         </p>
-        <span className="md:hidden text-sm font-mono font-bold text-orange-600 mt-1 block">
-          ₹{parseFloat(item.price)}
-        </span>
+
+        {/* --- MOBILE PRICE DISPLAY --- */}
+        <div className="md:hidden mt-1 block">
+          {item.offerPrice ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-purple-600 font-bold line-through">
+                ₹{parseFloat(item.price)}
+              </span>
+              <span className="text-sm font-mono font-bold text-orange-600">
+                ₹{parseFloat(item.offerPrice)}
+              </span>
+            </div>
+          ) : (
+            <span className="text-sm text-purple-600 font-bold line-through">
+              ₹{parseFloat(item.price)}
+            </span>
+          )}
+        </div>
+        {/* --------------------------- */}
       </div>
 
+      {/* 3. Desktop Price Section */}
       <div className="hidden md:block">
-        <span className="text-sm font-mono font-medium text-orange-600">
-          ₹{parseFloat(item.price)}
-        </span>
+        {item.offerPrice ? (
+          <div className="flex flex-col items-start justify-center">
+            <span className="text-sm text-purple-600 font-bold line-through">
+              ₹{parseFloat(item.price)}
+            </span>
+            <span className="text-sm font-mono font-medium text-orange-600">
+              ₹{parseFloat(item.offerPrice)}
+            </span>
+          </div>
+        ) : (
+          <span className="text-sm text-purple-600 font-bold line-through">
+            ₹{parseFloat(item.price)}
+          </span>
+        )}
       </div>
 
+      {/* 4. Actions Section */}
       <div className="flex items-center justify-end gap-1 md:gap-2">
         <button
           onClick={() => onToggle(item)}
@@ -271,6 +302,7 @@ export default function AdminDashboard() {
     name: "",
     description: "",
     price: "",
+    offerPrice: "",
     category: "",
     image: "",
   });
@@ -366,7 +398,14 @@ export default function AdminDashboard() {
     const isItem = activeTab === "items";
     const endpoint = isItem ? "/api/menu" : "/api/categories";
     const payload = isItem
-      ? { ...itemFormData, price: parseFloat(itemFormData.price) }
+      ? {
+          ...itemFormData,
+          price: parseFloat(itemFormData.price),
+          // Convert to float, or send null if empty string
+          offerPrice: itemFormData.offerPrice
+            ? parseFloat(itemFormData.offerPrice)
+            : null,
+        }
       : catFormData;
 
     try {
@@ -400,6 +439,7 @@ export default function AdminDashboard() {
         setItemFormData({
           ...item,
           price: item.price.toString(),
+          offerPrice: item.offerPrice ? item.offerPrice.toString() : "",
           category: categoryId, // Set the ID
         });
       } else {
@@ -408,6 +448,7 @@ export default function AdminDashboard() {
           name: "",
           description: "",
           price: "",
+          offerPrice: "",
           category: data.categories[0]?._id || "",
           image: "",
         });
@@ -682,6 +723,24 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  Offer Price{" "}
+                </label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  value={itemFormData.offerPrice}
+                  onChange={(e) =>
+                    setItemFormData({
+                      ...itemFormData,
+                      offerPrice: e.target.value,
+                    })
+                  }
+                  className="mt-1 w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                />
+              </div>
+              <div className="col-span-2">
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   Category
                 </label>

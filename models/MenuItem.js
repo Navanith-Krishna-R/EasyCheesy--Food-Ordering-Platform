@@ -22,6 +22,11 @@ const MenuItemSchema = new mongoose.Schema({
     required: true,
     min: [0, 'Price cannot be negative'] 
   },
+  offerPrice: {
+    type: Number,
+    min: [0, 'Offer price cannot be negative'],
+    default: null // Defaults to null so we know when no offer exists
+  },
   // Link to Category model
   category: { 
     type: mongoose.Schema.Types.ObjectId, 
