@@ -132,17 +132,18 @@ const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
         <div className="md:hidden mt-1 block">
           {item.offerPrice ? (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-purple-600 font-bold line-through">
+              <span className="text-sm text-slate-600 font-bold line-through decoration-red-500 decoration-[1.5px]">
                 ₹{parseFloat(item.price)}
               </span>
+
               <span className="text-sm font-mono font-bold text-orange-600">
                 ₹{parseFloat(item.offerPrice)}
               </span>
             </div>
           ) : (
-            <span className="text-sm text-purple-600 font-bold line-through">
-              ₹{parseFloat(item.price)}
-            </span>
+            <span className="text-sm text-slate-600 font-bold line-through decoration-red-500 decoration-[1.5px]">
+                ₹{parseFloat(item.price)}
+              </span>
           )}
         </div>
         {/* --------------------------- */}
@@ -152,17 +153,17 @@ const ItemCard = React.memo(({ item, onToggle, onEdit, onDelete }) => (
       <div className="hidden md:block">
         {item.offerPrice ? (
           <div className="flex flex-col items-start justify-center">
-            <span className="text-sm text-purple-600 font-bold line-through">
-              ₹{parseFloat(item.price)}
-            </span>
+            <span className="text-sm text-slate-600 font-bold line-through decoration-red-500 decoration-[1.5px]">
+                ₹{parseFloat(item.price)}
+              </span>
             <span className="text-sm font-mono font-medium text-orange-600">
               ₹{parseFloat(item.offerPrice)}
             </span>
           </div>
         ) : (
-          <span className="text-sm text-purple-600 font-bold line-through">
-            ₹{parseFloat(item.price)}
-          </span>
+          <span className="text-sm text-slate-600 font-bold line-through decoration-red-500 decoration-[1.5px]">
+                ₹{parseFloat(item.price)}
+              </span>
         )}
       </div>
 
