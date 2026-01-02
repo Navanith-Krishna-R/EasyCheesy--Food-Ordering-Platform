@@ -9,6 +9,9 @@ import {
   RefreshCw,
   Phone,
   X,
+  Info,
+  Instagram,
+  Mail,
 } from "lucide-react";
 // Added framer-motion for smooth expand/retract animations
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +22,10 @@ export default function PublicMenu({
   fetchError = false,
 }) {
   const [categories, setCategories] = useState(initialCategories);
+
+  // NEW: State for Info Popup
+  const [showInfo, setShowInfo] = useState(false);
+
   const [items, setItems] = useState(initialItems);
   const [activeCategory, setActiveCategory] = useState("");
   const [loading, setLoading] = useState(
@@ -173,13 +180,15 @@ export default function PublicMenu({
   }, [sortedCategories, loading]);
 
   // NEW: Lock body scroll when popup is open
+  // Lock body scroll when popup is open
   useEffect(() => {
-    if (selectedItem) {
+    if (selectedItem || showInfo) {
+      // <--- Added || showInfo
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
-  }, [selectedItem]);
+  }, [selectedItem, showInfo]);
 
   /* ---------------- Loading State ---------------- */
   if (loading) {
@@ -231,7 +240,11 @@ export default function PublicMenu({
         <div className="relative w-full py-5 flex justify-center items-center overflow-hidden border-b-[3px] border-amber-100 border-double">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-amber-100/60 via-[#FFFCF5] to-[#FFFCF5]"></div>
           <div className="absolute h-0.5 w-full top-1/2 -translate-y-1/2 bg-linear-to-r from-transparent via-amber-300 to-transparent opacity-70"></div>
-
+          <button
+            onClick={() => setShowInfo(true)}
+            className="absolute top-1/2 -translate-y-1/2 right-4 z-50 p-2 bg-white/80 rounded-full text-amber-800 hover:bg-amber-100  transition-all active:scale-95">
+            <Info size={18} />
+          </button>
           <div className="relative z-10 px-10 py-3 rounded-full bg-linear-to-br from-amber-500 via-amber-600 to-amber-800 border-[3px] border-t-amber-200 border-l-amber-300 border-b-amber-700 border-r-amber-600 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_0_#78350f,0_8px_20px_-4px_rgba(120,53,15,0.5)] text-center">
             <div className="absolute inset-1.5 rounded-full border border-amber-300/40 pointer-events-none"></div>
             <h1
@@ -413,7 +426,7 @@ export default function PublicMenu({
       {/* ---------------- Footer ---------------- */}
       <footer className="sticky bottom-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200">
         <div className="relative w-full bg-[#FFFCF5] border-t-4 border-double border-amber-200 shadow-sm">
-          <div className="max-w-4xl mx-auto flex items-center px-2 py-2">
+          <div className="max-w-4xl mx-auto flex flex-col items-center px-2 py-2">
             <p className="text-sm text-amber-900 italic font-medium mx-auto">
               For orders and inquiries, contact us at:{" "}
               <a
@@ -422,6 +435,15 @@ export default function PublicMenu({
                 +91 78922 78183
               </a>
             </p>
+            {/* Instagram Link */}
+            <a
+              href="https://instagram.com/easycheesy.store"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-amber-900 italic font-medium flex items-center gap-2 hover:text-amber-700 transition-colors">
+              <Instagram size={16} />
+              easycheesy.store
+            </a>
           </div>
         </div>
       </footer>
@@ -481,12 +503,131 @@ export default function PublicMenu({
                       {selectedItem.description}
                     </p>
                   </div>
-                  <div className="flex justify-between items-end mt-3 border-t border-dashed border-stone-100 pt-3">
+                  <div className="flex justify-start items-end mt-3 border-t border-dashed border-stone-100 pt-3 gap-5">
+                    <div className="relative inline-block">
+                      {/* The Price Text */}
+                      {selectedItem.price != 0 || selectedItem.price === "0" ? (
+                        <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
+                          ₹{selectedItem.price}
+                        </span>
+                      ) : null}
+                      {/* Line 1 of the Cross (\) */}
+                      <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none"></span>
+
+                      {/* Line 2 of the Cross (/) */}
+                      <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></span>
+                    </div>
                     <span className="font-serif font-bold text-2xl text-amber-700">
-                      ₹{selectedItem.price} /-
+                      ₹{selectedItem.offerPrice} /-
                     </span>
                   </div>
                 </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+
+      {/* NEW: Info Popup Modal */}
+        {showInfo && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowInfo(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-60"
+            />
+            <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-70 p-4">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 10 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                className="relative w-full max-w-sm bg-white rounded-2xl overflow-hidden border border-amber-200 shadow-2xl pointer-events-auto flex flex-col"
+              >
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowInfo(false)}
+                  className="absolute top-3 right-3 p-1.5 bg-stone-50 rounded-full hover:bg-amber-100 text-stone-400 hover:text-amber-800 transition-colors z-10"
+                >
+                  <X size={18} />
+                </button>
+
+                {/* --- TOP SECTION (80%): Owner & Support --- */}
+                <div className="flex-1 p-6 flex flex-col items-center text-center justify-center">
+                  
+                  {/* Icon */}
+                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 mb-4 shadow-inner">
+                    <Info size={24} />
+                  </div>
+
+                  {/* Owner Info */}
+                  <div className="mb-6">
+                    <p className="text-xs uppercase tracking-widest text-amber-800/60 font-bold mb-1">
+                      Restaurant Owner
+                    </p>
+                    <p className="font-serif text-2xl font-bold text-amber-950 leading-none mb-2">
+                      Girish R N
+                    </p>
+                    <a 
+                      href="tel:+917892278183" 
+                      className="inline-block bg-amber-50 px-3 py-1 rounded-lg text-amber-800 font-bold text-lg hover:bg-amber-100 transition-colors"
+                    >
+                      +91 78922 78183
+                    </a>
+                  </div>
+
+                  {/* Support Message */}
+                  <div className="text-xs text-stone-500 leading-relaxed max-w-[240px]">
+                    <span className="font-bold text-stone-700 block mb-0.5">
+                      Site not working?
+                    </span>
+                    Please call the owner directly for orders or technical issues.
+                  </div>
+                </div>
+
+                {/* --- BOTTOM SECTION (20%): Developer --- */}
+                <div className="bg-stone-50 p-2 border-t border-stone-100 text-center">
+                  <p className="text-[10px] uppercase tracking-wider text-stone-400 font-bold mb-1">
+                    Developed by Nishanth K S
+                  </p>
+                  <div className="flex justify-center items-center gap-3 text-[10px] font-medium text-stone-500">
+                    
+                    {/* Gmail - UPDATED LINK */}
+                    <a 
+                      href="https://mail.google.com/mail/?view=cm&fs=1&to=nishanthkshivakumar@gmail.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-amber-700 hover:underline transition-colors"
+                    >
+                      Gmail
+                    </a>
+
+                    <span className="text-stone-300">|</span>
+
+                    {/* LinkedIn */}
+                    <a 
+                      href="https://www.linkedin.com/in/nishanthhks/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-amber-700 hover:underline transition-colors"
+                    >
+                      LinkedIn
+                    </a>
+
+                    <span className="text-stone-300">|</span>
+
+                    {/* Instagram */}
+                    <a 
+                      href="https://instagram.com/nishanth._ks"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-amber-700 hover:underline transition-colors"
+                    >
+                      Instagram
+                    </a>
+                  </div>
+                </div>
+
               </motion.div>
             </div>
           </>
