@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Category from "@/models/Category";
-import MenuItem from "@/models/MenuItem";
 import { getSession } from "@/lib/auth";
 import mongoose from "mongoose";
 

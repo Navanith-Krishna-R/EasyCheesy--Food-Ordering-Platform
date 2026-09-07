@@ -3,11 +3,10 @@ import dbConnect from "@/lib/mongodb";
 import MenuItem from "@/models/MenuItem";
 import Category from "@/models/Category";
 import { getSession } from "@/lib/auth";
-import mongoose from "mongoose";
 
 export async function GET(request) {
-  await dbConnect();
   try {
+    await dbConnect();
     const { searchParams } = new URL(request.url);
     const forcePublic = searchParams.get("public") === "true";
     const session = await getSession();
@@ -52,11 +51,9 @@ export async function POST(request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  await dbConnect();
-
   try {
+    await dbConnect();
     const body = await request.json();
-    console.log("POST /api/menu payload:", body);
 
     let categoryId = body.category;
 

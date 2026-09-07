@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
+  // Keep Next.js scoped to this app when another lockfile exists higher up.
+  turbopack: {
+    root: process.cwd(),
   },
+  outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;

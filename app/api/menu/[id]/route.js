@@ -17,8 +17,6 @@ export async function PUT(request, { params }) {
   await dbConnect();
   try {
     const body = await request.json();
-    console.log("PUT Request Body:", body);
-
     // Sanitize
     if (body.offerPrice === "") {
         body.offerPrice = null;
@@ -41,11 +39,9 @@ export async function PUT(request, { params }) {
       { new: true, runValidators: true } 
     ).lean();
 
-    console.log("Updated DB Result:", updatedItem); // Check console to see if offerPrice is here
-
     if (!updatedItem) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
     return NextResponse.json(updatedItem);
-  } catch (error) {
+  } catch {
     console.error("PUT_ERR", error);
     return NextResponse.json({ error: 'Update failed' }, { status: 500 });
   }
@@ -66,7 +62,7 @@ export async function DELETE(request, { params }) {
     const deleted = await MenuItem.findByIdAndDelete(id);
     if (!deleted) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
     return NextResponse.json({ message: 'Resource deleted successfully' });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
   }
 }

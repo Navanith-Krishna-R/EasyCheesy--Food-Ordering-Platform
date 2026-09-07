@@ -11,7 +11,11 @@ import {
   X,
   Info,
   Instagram,
-  Mail,
+  ShieldCheck,
+  UserRound,
+  Plus,
+  ShoppingBag,
+  ClipboardList,
 } from "lucide-react";
 // Added framer-motion for smooth expand/retract animations
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +24,13 @@ export default function PublicMenu({
   initialCategories = [],
   initialItems = [],
   fetchError = false,
+  customer = null,
+  onAccount,
+  onAdmin,
+  onAddToCart,
+  onOpenCart,
+  onOpenOrders,
+  cartCount = 0,
 }) {
   const [categories, setCategories] = useState(initialCategories);
 
@@ -67,7 +78,7 @@ export default function PublicMenu({
     if (initialCategories.length === 0 && !fetchError) {
       fetchData();
     }
-  }, [initialCategories]);
+  }, [initialCategories, fetchError]);
 
   /* ---------------- Optimized Sorting Logic ---------------- */
   const sortedCategories = useMemo(() => {
@@ -212,7 +223,7 @@ export default function PublicMenu({
             Oops! Something went wrong
           </h2>
           <p className="text-stone-600 mb-8">
-            We're having trouble loading the menu right now. Please try again or
+            We&apos;re having trouble loading the menu right now. Please try again or
             contact us directly.
           </p>
 
@@ -245,6 +256,23 @@ export default function PublicMenu({
             className="absolute top-1/2 -translate-y-1/2 right-4 z-50 p-2 bg-white/80 rounded-full text-amber-800 hover:bg-amber-100  transition-all active:scale-95">
             <Info size={18} />
           </button>
+          <div className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 z-50 flex items-center gap-2">
+            <button
+              onClick={onAccount}
+              className="flex items-center gap-2 rounded-full border border-amber-200 bg-white/90 px-3 py-2 text-xs font-bold text-amber-900 shadow-sm transition hover:bg-amber-50">
+              <UserRound size={16} />
+              <span className="hidden sm:inline max-w-24 truncate">
+                {customer?.name || "Sign in"}
+              </span>
+            </button>
+            {!customer && (
+              <button
+                onClick={onAdmin}
+                className="hidden md:flex items-center gap-2 rounded-full bg-stone-900 px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-amber-800">
+                <ShieldCheck size={16} /> Admin
+              </button>
+            )}
+          </div>
           <div className="relative z-10 px-10 py-3 rounded-full bg-linear-to-br from-amber-500 via-amber-600 to-amber-800 border-[3px] border-t-amber-200 border-l-amber-300 border-b-amber-700 border-r-amber-600 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_0_#78350f,0_8px_20px_-4px_rgba(120,53,15,0.5)] text-center">
             <div className="absolute inset-1.5 rounded-full border border-amber-300/40 pointer-events-none"></div>
             <h1
@@ -318,8 +346,41 @@ export default function PublicMenu({
         </div>
       </header>
 
+      <section
+        className="relative isolate overflow-hidden border-b border-amber-200 bg-cover bg-center px-5 py-16 md:py-24"
+        style={{ backgroundImage: "url('/images/easy-cheesy-hero.png')" }}>
+        <div className="absolute inset-0 -z-10 bg-linear-to-r from-stone-950/80 via-stone-950/30 to-stone-950/70" />
+        <div className="mx-auto max-w-3xl text-center text-white">
+          <span className="inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] backdrop-blur">
+            Freshly made • Full of flavour
+          </span>
+          <h2 className="mt-5 text-4xl font-black tracking-tight drop-shadow-lg md:text-6xl">
+            Cravings, meet your match.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base text-amber-50 md:text-lg">
+            Explore the menu, build your cart and send your order straight to our kitchen.
+          </p>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            {customer ? (
+              <>
+                <button onClick={onOpenCart} className="flex items-center gap-2 rounded-full bg-orange-500 px-6 py-3 font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-orange-600">
+                  <ShoppingBag size={19} /> View cart ({cartCount})
+                </button>
+                <button onClick={onOpenOrders} className="flex items-center gap-2 rounded-full border border-white/50 bg-white/15 px-6 py-3 font-black text-white backdrop-blur transition hover:bg-white/25">
+                  <ClipboardList size={19} /> My orders
+                </button>
+              </>
+            ) : (
+              <button onClick={onAccount} className="flex items-center gap-2 rounded-full bg-orange-500 px-7 py-3 font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-orange-600">
+                <UserRound size={19} /> Sign up to order
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ---------------- Menu Content ---------------- */}
-      <main className="max-w-max px-4 py-6 space-y-12 flex flex-col justify-center item-center mx-auto w-full">
+      <main className="mx-auto flex w-full max-w-6xl flex-col justify-center space-y-14 px-4 py-12">
         {sortedCategories.map((cat) => {
           const id = getCatId(cat);
           const catItems = items
@@ -363,25 +424,31 @@ export default function PublicMenu({
                 </svg>
               </div>
 
-              <div className="flex flex-col gap-x-3 gap-y-3">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {catItems.map((item) => (
                   // Changed div to motion.div for animation linkage
                   <motion.div
                     layoutId={`card-${item._id || item.id}`}
                     key={item._id || item.id}
                     onClick={() => setSelectedItem(item)}
-                    className="group relative rounded-xl p-4 h-40 border shadow-[0_8px_30px_rgba(251,191,36,0.15)] bg-white border-amber-200 transition-all duration-300 ease-out flex gap-5 cursor-pointer">
+                    className="group relative flex min-h-44 cursor-pointer gap-5 overflow-hidden rounded-3xl border border-amber-100 bg-white p-4 shadow-[0_16px_50px_rgba(120,53,15,0.10)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-amber-300 hover:shadow-[0_20px_60px_rgba(120,53,15,0.18)]">
                     <div className="relative shrink-0 w-32 h-32">
                       <div className="absolute inset-0 bg-amber-100 rounded-2xl rotate-7 group-hover:rotate-6 transition-transform duration-300 ease-out" />
                       <div className="relative w-30 h-30 rounded-2xl overflow-hidden border-2 border-white shadow-sm">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          onError={(e) =>
-                            (e.target.src = "https://via.placeholder.com/150")
-                          }
-                        />
+                        {item.image ? (
+                          <>
+                            {/* User-provided image URLs are intentionally rendered without Next.js optimization. */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={(event) => (event.currentTarget.style.display = "none")}
+                            />
+                          </>
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-amber-100 to-orange-100 text-4xl">🍽️</div>
+                        )}
                       </div>
                     </div>
 
@@ -396,23 +463,33 @@ export default function PublicMenu({
                           {item.description}
                         </p>
                       </div>
-                      <div className="flex justify-start gap-8 items-end mt-3 border-t border-dashed border-stone-100 pt-3">
-                        <div className="relative inline-block">
-                          {/* The Price Text */}
-                          {item.price != 0 || item.price === "0" ? (
-                            <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
-                              ₹{item.price}
+                      <div className="flex flex-wrap justify-between gap-3 items-end mt-3 border-t border-dashed border-stone-100 pt-3">
+                        {item.offerPrice != null ? (
+                          <>
+                            <div className="relative inline-block">
+                             <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
+                               ₹{item.price}
+                             </span>
+                              <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none" />
+                              <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none" />
+                            </div>
+                            <span className="font-serif font-bold text-2xl text-amber-700">
+                              ₹{item.offerPrice} /-
                             </span>
-                          ) : null}
-                          {/* Line 1 of the Cross (\) */}
-                          <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none"></span>
-
-                          {/* Line 2 of the Cross (/) */}
-                          <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></span>
-                        </div>
-                        <span className="font-serif font-bold text-2xl text-amber-700">
-                          ₹{item.offerPrice} /-
-                        </span>
+                          </>
+                        ) : (
+                          <span className="font-serif font-bold text-2xl text-amber-700">
+                            ₹{item.price} /-
+                          </span>
+                        )}
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onAddToCart(item);
+                          }}
+                          className="flex items-center gap-1.5 rounded-full bg-stone-900 px-4 py-2 text-xs font-black text-white transition hover:bg-orange-600">
+                          <Plus size={15} /> Add
+                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -424,7 +501,7 @@ export default function PublicMenu({
       </main>
 
       {/* ---------------- Footer ---------------- */}
-      <footer className="sticky bottom-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200">
+      <footer className="bg-white/95 backdrop-blur-md border-t border-gray-200">
         <div className="relative w-full bg-[#FFFCF5] border-t-4 border-double border-amber-200 shadow-sm">
           <div className="max-w-4xl mx-auto flex flex-col items-center px-2 py-2">
             <p className="text-sm text-amber-900 italic font-medium mx-auto">
@@ -480,8 +557,9 @@ export default function PublicMenu({
                 <div className="relative shrink-0 w-32 h-32">
                   <div className="absolute inset-0 bg-amber-100 rounded-2xl rotate-6" />
                   <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white shadow-sm">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={selectedItem.image}
+                      src={selectedItem.image || null}
                       alt={selectedItem.name}
                       className="w-full h-full object-cover scale-110" // Slightly scaled to look active
                       onError={(e) =>
@@ -504,22 +582,24 @@ export default function PublicMenu({
                     </p>
                   </div>
                   <div className="flex justify-start items-end mt-3 border-t border-dashed border-stone-100 pt-3 gap-5">
-                    <div className="relative inline-block">
-                      {/* The Price Text */}
-                      {selectedItem.price != 0 || selectedItem.price === "0" ? (
-                        <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
-                          ₹{selectedItem.price}
+                    {selectedItem.offerPrice != null ? (
+                      <>
+                        <div className="relative inline-block">
+                         <span className="font-serif font-bold text-2xl text-black/60 pointer-events-none">
+                           ₹{selectedItem.price}
+                         </span>
+                          <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none" />
+                          <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none" />
+                        </div>
+                        <span className="font-serif font-bold text-2xl text-amber-700">
+                          ₹{selectedItem.offerPrice} /-
                         </span>
-                      ) : null}
-                      {/* Line 1 of the Cross (\) */}
-                      <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none"></span>
-
-                      {/* Line 2 of the Cross (/) */}
-                      <span className="absolute top-1/2 left-1/2 w-full h-0.5 bg-red-500 -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></span>
-                    </div>
-                    <span className="font-serif font-bold text-2xl text-amber-700">
-                      ₹{selectedItem.offerPrice} /-
-                    </span>
+                      </>
+                    ) : (
+                      <span className="font-serif font-bold text-2xl text-amber-700">
+                        ₹{selectedItem.price} /-
+                      </span>
+                    )}
                   </div>
                 </div>
               </motion.div>

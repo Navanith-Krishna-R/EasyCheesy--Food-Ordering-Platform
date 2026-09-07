@@ -1,6 +1,7 @@
 {
   "name": "easycheesy",
   "version": "0.1.0",
+  "author": "Navanith Krishna R",
   "private": true,
   "scripts": {
     "dev": "next dev",

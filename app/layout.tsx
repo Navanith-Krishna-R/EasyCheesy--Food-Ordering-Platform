@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   },
   description: "Easy Cheesy – Eat easy, feel cheesy.",
   applicationName: "Easy Cheesy",
+  authors: [{ name: "Navanith Krishna R" }],
+  creator: "Navanith Krishna R",
+  publisher: "Navanith Krishna R",
 
   metadataBase: new URL("https://easycheesy.store"), // change to your domain
 

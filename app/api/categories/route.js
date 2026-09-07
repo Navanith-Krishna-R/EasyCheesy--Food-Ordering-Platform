@@ -4,12 +4,12 @@ import Category from '@/models/Category';
 import { getSession } from '@/lib/auth';
 
 export async function GET() {
-  await dbConnect();
   try {
+    await dbConnect();
     // Lean queries for faster read-only metadata
     const categories = await Category.find({}).sort({ name: 1 }).lean();
     return NextResponse.json(categories);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
   }
 }
@@ -18,8 +18,8 @@ export async function POST(request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await dbConnect();
   try {
+    await dbConnect();
     const { name } = await request.json();
 
     if (!name?.trim()) {
